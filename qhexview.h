@@ -16,7 +16,7 @@ The license chosen is at the discretion of the user of this software.
 #ifndef QHEXVIEW_H_
 #define QHEXVIEW_H_
 
-#include <QAbstractScrollArea>
+#include <QGraphicsView>
 #include <QSharedPointer>
 
 class QBuffer;
@@ -26,7 +26,7 @@ class QMenu;
 class QString;
 class QTextStream;
 
-class QHexView : public QAbstractScrollArea {
+class QHexView : public QGraphicsView {
 	Q_OBJECT
 
 public:
@@ -75,7 +75,7 @@ public Q_SLOTS:
 	void setRowWidth(int);
 	void setFont(const QFont &font);
 	void setShowAddressSeparator(bool value);
-	void repaint();
+	//void update();
 
 public:
 	address_t firstVisibleAddress() const;
@@ -113,7 +113,7 @@ public Q_SLOTS:
 	void mnuSetFont();
 	void mnuCopy();
 
-private:
+protected:
 	QString formatAddress(address_t address);
 	QString formatBytes(const QByteArray &row_data, int index) const;
 	bool isInViewableArea(qint64 index) const;
@@ -137,7 +137,7 @@ private:
 	void drawHexDumpToBuffer(QTextStream &stream, quint64 offset, quint64 size, const QByteArray &row_data) const;
 	void updateScrollbars();
 
-private:
+protected:
 	CommentServerInterface::pointer comment_server_;
 	QBuffer                        *internal_buffer_;
 	QColor                          address_color_;          // color of the address in display

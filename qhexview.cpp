@@ -1,9 +1,9 @@
 /*
 Copyright (C) 2006 - 2013 Evan Teran
-                          eteran@alum.rit.edu
+						  eteran@alum.rit.edu
 
 Copyright (C) 2010        Hugues Bruant
-                          hugues.bruant@gmail.com
+						  hugues.bruant@gmail.com
 
 This file can be used under one of two licenses.
 
@@ -28,6 +28,7 @@ The license chosen is at the discretion of the user of this software.
 #include <QScrollBar>
 #include <QSignalMapper>
 #include <QTextStream>
+#include <QGraphicsView>
 #include <QtGlobal>
 
 #include <cctype>
@@ -122,7 +123,7 @@ namespace {
 // Name: QHexView
 // Desc: constructor
 //------------------------------------------------------------------------------
-QHexView::QHexView(QWidget *parent) : QAbstractScrollArea(parent),
+QHexView::QHexView(QWidget *parent) : QGraphicsView(parent),
 		internal_buffer_(0), address_color_(Qt::red), even_word_(Qt::blue),
 		non_printable_text_(Qt::red), data_(0), address_offset_(0), origin_(0),
 		cold_zone_end_(0), show_address_(true), show_ascii_(true), 
@@ -178,9 +179,9 @@ QString QHexView::formatAddress(address_t address) {
 // Name: repaint
 // Desc:
 //------------------------------------------------------------------------------
-void QHexView::repaint() {
-	viewport()->repaint();
-}
+//void QHexView::update() {
+//    viewport()->update();
+//}
 
 //------------------------------------------------------------------------------
 // Name: dataSize
@@ -346,7 +347,7 @@ void QHexView::mnuCopy() {
 // Desc: slot used to set the font of the widget based on dialog selector
 //------------------------------------------------------------------------------
 void QHexView::mnuSetFont() {
-    setFont(QFontDialog::getFont(0, font(), this));
+	setFont(QFontDialog::getFont(0, font(), this));
 }
 
 //------------------------------------------------------------------------------
@@ -355,7 +356,7 @@ void QHexView::mnuSetFont() {
 //------------------------------------------------------------------------------
 void QHexView::clear() {
 	data_ = 0;
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -389,7 +390,7 @@ void QHexView::keyPressEvent(QKeyEvent *event) {
 		switch(event->key()) {
 		case Qt::Key_A:
 			selectAll();
-            viewport()->update();
+			viewport()->update();
 			break;
 		case Qt::Key_Home:
 			scrollTo(0);
@@ -525,12 +526,12 @@ unsigned int QHexView::addressLen() const {
 // Desc: recalculates scrollbar maximum value base on lines total and lines viewable
 //------------------------------------------------------------------------------
 void QHexView::updateScrollbars() {
-    const qint64 sz = dataSize();
-    const int bpr = bytesPerRow();
+	const qint64 sz = dataSize();
+	const int bpr = bytesPerRow();
 
-    qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
+	qint64 maxval = sz / bpr + ((sz % bpr) ? 1 : 0) - viewport()->height() / font_height_;
 
-    verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
+	verticalScrollBar()->setMaximum(qMax((qint64)0, maxval));
 	horizontalScrollBar()->setMaximum(qMax(0, static_cast<int>((vertline3() - viewport()->width()) / font_width_)));
 }
 
@@ -551,7 +552,7 @@ void QHexView::scrollTo(address_t offset) {
 	}
 
 	verticalScrollBar()->setValue(address);
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -561,7 +562,7 @@ void QHexView::scrollTo(address_t offset) {
 void QHexView::setShowAddress(bool show) {
 	show_address_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -571,7 +572,7 @@ void QHexView::setShowAddress(bool show) {
 void QHexView::setShowHexDump(bool show) {
 	show_hex_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -581,7 +582,7 @@ void QHexView::setShowHexDump(bool show) {
 void QHexView::setShowComments(bool show) {
 	show_comments_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -591,7 +592,7 @@ void QHexView::setShowComments(bool show) {
 void QHexView::setShowAsciiDump(bool show) {
 	show_ascii_ = show;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -602,7 +603,7 @@ void QHexView::setRowWidth(int rowWidth) {
 	Q_ASSERT(rowWidth >= 0);
 	row_width_ = rowWidth;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -613,7 +614,7 @@ void QHexView::setWordWidth(int wordWidth) {
 	Q_ASSERT(wordWidth >= 0);
 	word_width_ = wordWidth;
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -707,7 +708,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = selection_start_ + word_width_;
-            viewport()->update();
+			viewport()->update();
 		} else if(x < vertline1()) {
 			highlighting_ = Highlighting_Data;
 
@@ -723,7 +724,7 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 			selection_start_ = byte_offset;
 			selection_end_ = byte_offset + chars_per_row;
-            viewport()->update();
+			viewport()->update();
 		}
 	}
 }
@@ -732,7 +733,6 @@ void QHexView::mouseDoubleClickEvent(QMouseEvent *event) {
 // Name: mousePressEvent
 //------------------------------------------------------------------------------
 void QHexView::mousePressEvent(QMouseEvent *event) {
-    qDebug() << "[QHexView::mousePressEvent] ***";
 	if(event->button() == Qt::LeftButton) {
 		const int x = event->x() + horizontalScrollBar()->value() * font_width_;
 		const int y = event->y();
@@ -756,7 +756,7 @@ void QHexView::mousePressEvent(QMouseEvent *event) {
 		} else {
 			selection_start_ = selection_end_ = -1;
 		}
-        viewport()->update();
+		viewport()->update();
 	}
 	if (event->button() == Qt::RightButton) {
 
@@ -830,7 +830,7 @@ void QHexView::setData(QIODevice *d) {
 
 	deselect();
 	updateScrollbars();
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1087,10 +1087,10 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 	const int ascii_dump_left = asciiDumpLeft();
 
 	// i is the byte index
-        const unsigned chars_per_row = bytesPerRow();
-        for(unsigned i = 0; i < chars_per_row; ++i) {
+		const unsigned chars_per_row = bytesPerRow();
+		for(unsigned i = 0; i < chars_per_row; ++i) {
 
-                const quint64 index = offset + i;
+				const quint64 index = offset + i;
 
 		if(index < size) {
 			const char ch        = row_data[i];
@@ -1140,9 +1140,7 @@ void QHexView::drawAsciiDump(QPainter &painter, quint64 offset, unsigned int row
 // Name: paintEvent
 //------------------------------------------------------------------------------
 void QHexView::paintEvent(QPaintEvent * event) {
-
-	Q_UNUSED(event);
-    //qDebug() << "[QHexView::paintEvent] ***";
+	//qDebug() << "[QHexView::paintEvent] ***";
 	QPainter painter(viewport());
 	painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
 
@@ -1221,6 +1219,7 @@ void QHexView::paintEvent(QPaintEvent * event) {
 		const int vertline3_x = vertline3();
 		painter.drawLine(vertline3_x, 0, vertline3_x, widget_height);
 	}
+	//QGraphicsView::paintEvent(event);
 }
 
 //------------------------------------------------------------------------------
@@ -1371,7 +1370,7 @@ QHexView::address_t QHexView::firstVisibleAddress() const {
 //------------------------------------------------------------------------------
 void QHexView::setAddressSize(AddressSize address_size) {
 	address_size_ = address_size;
-    viewport()->update();
+	viewport()->update();
 }
 
 //------------------------------------------------------------------------------
